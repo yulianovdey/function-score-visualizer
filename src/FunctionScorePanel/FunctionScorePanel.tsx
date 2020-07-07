@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import ScoreModeSelector from '../ScoreModeSelector/ScoreModeSelector';
+import ScoreModeSelector from 'ScoreModeSelector/ScoreModeSelector';
 import ScoreMode from 'ScoreMode';
 import SearchResult from 'SearchResult';
+import FunctionTypeSelector from 'FunctionTypeSelector/FunctionTypeSelector';
+import ScoringFunctionType from "../ScoringFunctionType";
 
 function randomInt(min: number, max: number) {
   min = Math.ceil(min);
@@ -9,33 +11,16 @@ function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-interface FunctionType {
+interface ScoringFunction {
   calculateScore(results: SearchResult[]): number;
 }
 
-interface WeightFunction extends FunctionType {
+interface WeightFunction extends ScoringFunction {
   weight: number
 }
 
-interface RandomScoreFunction extends FunctionType {
+interface RandomScoreFunction extends ScoringFunction {
 
-}
-
-function RandomScoreFunctionFactory(): RandomScoreFunction {
-  return {
-    calculateScore() {
-      return randomInt(1, 100);
-    }
-  };
-}
-
-function WeightFunctionFactory(weight: number): WeightFunction {
-  return {
-    weight,
-    calculateScore() {
-      return this.weight;
-    }
-  };
 }
 
 function FunctionScoreDefinitionFactory(scoreMode: ScoreMode) {
@@ -44,11 +29,8 @@ function FunctionScoreDefinitionFactory(scoreMode: ScoreMode) {
 
 const result = FunctionScoreDefinitionFactory(ScoreMode.Average);
 
-console.log(result.scoreMode);
-
 interface FunctionDefinition {
-  name: string,
-  instance: FunctionType,
+  instance: ScoringFunction,
 }
 
 function FunctionScorePanel() {
@@ -83,13 +65,28 @@ function FunctionScorePanel() {
     console.log(score);
   }
 
+  function onFunctionConfigured(newType: string, newParams: any) {
+    if (newType === ScoringFunctionType.RandomScore) {
+      setFunctionDefinitions(functionDefinitions.concat({
+        instance: {
+          calculateScore(): number {
+            return randomInt(0, 10);
+          }
+        }
+      }))
+    }
+  }
+
   return (
     <div>
-      Function Score Panel
+      <div>Function Score Panel</div>
       {functionDefinitions.map((_, index) => <div key={index}>this is a definition</div>)}
+      <div>Score Mode:</div>
       <ScoreModeSelector onScoreModeChanged={onScoreModeChanged}></ScoreModeSelector>
-      <button onClick={() => setFunctionDefinitions(functionDefinitions.concat({ name: 'weight', instance: WeightFunctionFactory(randomInt(1, 100))}))}>Add Weight Function</button>
-      <button onClick={() => setFunctionDefinitions(functionDefinitions.concat({ name: 'random', instance: RandomScoreFunctionFactory()}))}>Add Random Function</button>
+      <div>New Function:</div>
+      <FunctionTypeSelector
+        onFunctionConfigured={onFunctionConfigured}
+      ></FunctionTypeSelector>
     </div>
   );
 }
