@@ -27,7 +27,7 @@ function OutputResultsPanel(props: props) {
     <div className={styles.container}>
       {results.map((result) => (
         <div className={styles.result} key={result.id}>
-          <span className={styles.score}>{qualifiedScore(result)}</span>
+          <span className={styles.score}>{qualifiedScore(result)} ({result.score}+ {props.scoreSet[result.id]})</span>
           <pre>{JSON.stringify(result.source, null, 4)}</pre>
         </div>
       ))}
