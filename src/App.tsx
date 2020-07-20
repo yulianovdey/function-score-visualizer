@@ -11,10 +11,16 @@ function App() {
   const [scoreSet, setScoreSet] = useState<ScoreSet>({});
 
   async function onResultsUrlChanged(newUrl: string) {
-    const res = await fetch(newUrl);
-    const results: any[] = await res.json();
+    let res;
+    try {
+      res = await fetch(newUrl);
+    } catch {}
 
-    console.log(results);
+    if (!res) {
+      return;
+    }
+
+    const results: any[] = await res.json();
 
     setResults(results.map(({ _id, _score, _source }) => ({ id: _id, score: _score, source: _source })));
   }
