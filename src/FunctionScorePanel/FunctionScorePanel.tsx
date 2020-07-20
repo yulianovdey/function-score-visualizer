@@ -26,11 +26,9 @@ const DEFAULT = {
       {
         random_score: {},
       },
-      {
-        weight: 2,
-      },
     ],
-    score_mode: 'max',
+    score_mode: 'multiply',
+    boost_mode: 'multiply',
   }
 };
 
@@ -53,7 +51,7 @@ function FunctionScorePanel(props: props) {
 
   function combineScores(scores: number[]): number {
     if (!scores.length) {
-      return 0;
+      return 1;
     }
 
     if (scoreMode === ScoreMode.Max) {
@@ -80,7 +78,7 @@ function FunctionScorePanel(props: props) {
       return Math.floor(scores.reduce((a, b) => a + b, 0) / scores.length);
     }
 
-    return 0;
+    return 1;
   }
 
   function recalculateScores() {
@@ -93,7 +91,7 @@ function FunctionScorePanel(props: props) {
       });
 
 
-      set[result.id] = result.score + combineScores(scores);
+      set[result.id] = result.score * combineScores(scores);
     });
 
     props.onScoresUpdated(set);
@@ -158,7 +156,15 @@ function FunctionScorePanel(props: props) {
               calculateScore(result: SearchResult): number {
                 const config = definition['field_value_factor'];
 
-                return Math.sqrt(config.factor * get(result.source, config.field));
+                if (config.modifier === 'sqrt') {
+                  return Math.sqrt(config.factor * get(result.source, config.field));
+                }
+
+                if (config.modifier === 'ln2p') {
+                  return Math.log(1 * (2 + get(result.source, config.field)));
+                }
+
+                throw new Error(`Invalid modifier: ${config.modifier}`);
               }
             },
           })
