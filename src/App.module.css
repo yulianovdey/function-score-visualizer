@@ -1,0 +1,17 @@
+.container {
+
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: 200px auto;
+}
+
+.input-results-panel {
+  grid-row-start: 1;
+}
+
+.column {
+  grid-row-start: 2;
+}

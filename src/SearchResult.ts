@@ -1,5 +1,7 @@
 interface SearchResult {
-  score: number
+  id: string;
+  score: number;
+  source: any;
 }
 
 export default SearchResult;
