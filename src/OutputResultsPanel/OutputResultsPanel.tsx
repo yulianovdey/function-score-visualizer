@@ -9,16 +9,8 @@ type props = {
 };
 
 function OutputResultsPanel(props: props) {
-  function qualifiedScore(result: SearchResult) {
-    if (props.scoreSet[result.id]) {
-      return result.score + props.scoreSet[result.id];
-    }
-
-    return result.score;
-  }
-
   function compare(a: SearchResult, b: SearchResult) {
-    return qualifiedScore(b) - qualifiedScore(a);
+    return props.scoreSet[b.id] - props.scoreSet[a.id];
   }
 
   const results: SearchResult[] = Array.from(props.results).sort(compare);
@@ -27,7 +19,7 @@ function OutputResultsPanel(props: props) {
     <div className={styles.container}>
       {results.map((result) => (
         <div className={styles.result} key={result.id}>
-          <span className={styles.score}>{qualifiedScore(result)} ({result.score}+ {props.scoreSet[result.id]})</span>
+          <span className={styles.score}>{props.scoreSet[result.id]} (+ {props.scoreSet[result.id] - result.score})</span>
           <pre>{JSON.stringify(result.source, null, 4)}</pre>
         </div>
       ))}
