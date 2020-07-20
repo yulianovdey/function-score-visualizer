@@ -5,6 +5,7 @@ import ScoreSet from 'ScoreSet';
 import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/edit/closebrackets';
+import { get } from 'lodash';
 
 function randomInt(min: number, max: number) {
   min = Math.ceil(min);
@@ -148,6 +149,16 @@ function FunctionScorePanel(props: props) {
             instance: {
               calculateScore(result): number {
                 return result.score * definition.weight;
+              }
+            },
+          })
+        } else if (definition.hasOwnProperty('field_value_factor')) {
+          defs.push({
+            instance: {
+              calculateScore(result: SearchResult): number {
+                const config = definition['field_value_factor'];
+
+                return Math.sqrt(config.factor * get(result.source, config.field));
               }
             },
           })
