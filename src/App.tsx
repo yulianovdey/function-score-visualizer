@@ -10,10 +10,11 @@ function App() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [scoreSet, setScoreSet] = useState<ScoreSet>({});
 
-  async function onResultsUrlChanged(newUrl: string) {
+  async function onResultsUrlChanged(url: string) {
     let res;
     try {
-      res = await fetch(newUrl);
+      new URL(url);
+      res = await fetch(url);
     } catch {}
 
     if (!res) {
