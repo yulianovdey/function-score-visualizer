@@ -133,14 +133,14 @@ function FunctionScorePanel(props: props) {
               calculateScore(result: SearchResult): number {
                 const config: FieldValueFactorDef = definition['field_value_factor'];
 
-                const field: number = get(result.source, config.field);
+                let field: number = get(result.source, config.field);
+
+                if (typeof config.factor !== 'undefined') {
+                  field *= config.factor;
+                }
 
                 if (config.modifier === Modifier.None) {
                   return field;
-                }
-
-                if (config.modifier === Modifier.Sqrt) {
-                  return Math.sqrt(config.factor * field);
                 }
 
                 if (config.modifier === Modifier.Log) {
@@ -171,11 +171,15 @@ function FunctionScorePanel(props: props) {
                   return Math.pow(field, 2);
                 }
 
+                if (config.modifier === Modifier.Sqrt) {
+                  return Math.sqrt(field);
+                }
+
                 if (config.modifier === Modifier.Reciprocal) {
                   return 1 / field;
                 }
 
-                throw new Error(`Invalid modifier: ${config.modifier}`);
+                return field;
               }
             },
           })
