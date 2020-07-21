@@ -6,6 +6,8 @@ import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/edit/closebrackets';
 import { get } from 'lodash';
+import BoostMode from 'BoostMode';
+import { combineScores } from './Scoring';
 
 function randomInt(min: number, max: number) {
   min = Math.ceil(min);
@@ -44,42 +46,11 @@ type props = {
 function FunctionScorePanel(props: props) {
   const [functionDefinitions, setFunctionDefinitions] = useState<FunctionDefinition[]>([]);
   const [scoreMode, setScoreMode] = useState(ScoreMode.Multiply);
+  const [boostMode, setBoostMode] = useState(BoostMode.Multiply);
   const [versioning, setVersioning] = useState({
     functions: 1,
     scoreSet: 1,
   })
-
-  function combineScores(scores: number[]): number {
-    if (!scores.length) {
-      return 1;
-    }
-
-    if (scoreMode === ScoreMode.Max) {
-      return Math.max(...scores);
-    }
-
-    if (scoreMode === ScoreMode.Min) {
-      return Math.min(...scores);
-    }
-
-    if (scoreMode === ScoreMode.First) {
-      return scores[0];
-    }
-
-    if (scoreMode === ScoreMode.Sum) {
-      return scores.reduce((a, b) => a + b, 0);
-    }
-
-    if (scoreMode === ScoreMode.Multiply) {
-      return scores.reduce((a, b) => a * b);
-    }
-
-    if (scoreMode === ScoreMode.Average) {
-      return Math.floor(scores.reduce((a, b) => a + b, 0) / scores.length);
-    }
-
-    return 1;
-  }
 
   function recalculateScores() {
     const set: ScoreSet = {};
@@ -90,8 +61,11 @@ function FunctionScorePanel(props: props) {
         scores.push(functionDefinition.instance.calculateScore(result));
       });
 
-
-      set[result.id] = result.score * combineScores(scores);
+      if (boostMode === BoostMode.Multiply) {
+        set[result.id] = result.score * combineScores(scores, scoreMode);
+      } else if (boostMode === BoostMode.Replace) {
+        set[result.id] = combineScores(scores, scoreMode);
+      }
     });
 
     props.onScoresUpdated(set);
@@ -127,8 +101,12 @@ function FunctionScorePanel(props: props) {
         return;
       }
 
-      if (scoreMode !== value.score_mode) {
+      if (value.score_mode !== scoreMode) {
         setScoreMode(value.score_mode);
+      }
+
+      if (value.boost_mode !== boostMode) {
+        setBoostMode(value.boost_mode);
       }
 
       const defs: FunctionDefinition[] = [];
