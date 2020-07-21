@@ -7,7 +7,7 @@ import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/edit/closebrackets';
 import { get } from 'lodash';
 import BoostMode from 'BoostMode';
-import { combineScores } from './Scoring';
+import { combineScores, boostScore } from './Scoring';
 
 function randomInt(min: number, max: number) {
   min = Math.ceil(min);
@@ -61,11 +61,9 @@ function FunctionScorePanel(props: props) {
         scores.push(functionDefinition.instance.calculateScore(result));
       });
 
-      if (boostMode === BoostMode.Multiply) {
-        set[result.id] = result.score * combineScores(scores, scoreMode);
-      } else if (boostMode === BoostMode.Replace) {
-        set[result.id] = combineScores(scores, scoreMode);
-      }
+      const boost = combineScores(scores, scoreMode);
+
+      set[result.id] = boostScore(result.score, boost, boostMode);
     });
 
     props.onScoresUpdated(set);
