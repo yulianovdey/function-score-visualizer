@@ -8,6 +8,7 @@ import 'codemirror/addon/edit/closebrackets';
 import { get } from 'lodash';
 import BoostMode from 'BoostMode';
 import { combineScores, boostScore } from './Scoring';
+import { FieldValueFactorDef, Modifier } from 'FieldValueFactor';
 
 function randomInt(min: number, max: number) {
   min = Math.ceil(min);
@@ -130,14 +131,48 @@ function FunctionScorePanel(props: props) {
           defs.push({
             instance: {
               calculateScore(result: SearchResult): number {
-                const config = definition['field_value_factor'];
+                const config: FieldValueFactorDef = definition['field_value_factor'];
 
-                if (config.modifier === 'sqrt') {
-                  return Math.sqrt(config.factor * get(result.source, config.field));
+                const field: number = get(result.source, config.field);
+
+                if (config.modifier === Modifier.None) {
+                  return field;
                 }
 
-                if (config.modifier === 'ln2p') {
-                  return Math.log(1 * (2 + get(result.source, config.field)));
+                if (config.modifier === Modifier.Sqrt) {
+                  return Math.sqrt(config.factor * field);
+                }
+
+                if (config.modifier === Modifier.Log) {
+                  return Math.log10(field);
+                }
+
+                if (config.modifier === Modifier.LogOneP) {
+                  return Math.log10(1 + field);
+                }
+
+                if (config.modifier === Modifier.LogTwoP) {
+                  return Math.log10(2 + field);
+                }
+
+                if (config.modifier === Modifier.LN) {
+                  return Math.log(field);
+                }
+
+                if (config.modifier === Modifier.LNOneP) {
+                  return Math.log1p(field);
+                }
+
+                if (config.modifier === Modifier.LNTwoP) {
+                  return Math.log(2 + field);
+                }
+
+                if (config.modifier === Modifier.Square) {
+                  return Math.pow(field, 2);
+                }
+
+                if (config.modifier === Modifier.Reciprocal) {
+                  return 1 / field;
                 }
 
                 throw new Error(`Invalid modifier: ${config.modifier}`);
