@@ -1,5 +1,6 @@
 import ScoreMode from 'ScoreMode';
 import BoostMode from 'BoostMode';
+import { Modifier } from 'FieldValueFactor';
 
 export function combineScores(scores: number[], mode: ScoreMode): number {
   if (!scores.length) {
@@ -47,4 +48,44 @@ export function boostScore(score: number, boost: number, mode: BoostMode) {
     case BoostMode.Min:
       return Math.min(score, boost);
   }
+}
+
+export function modifyFieldValueScore(field: number, modifier: Modifier) {
+  if (modifier === Modifier.Log) {
+    return Math.log10(field);
+  }
+
+  if (modifier === Modifier.LogOneP) {
+    return Math.log10(1 + field);
+  }
+
+  if (modifier === Modifier.LogTwoP) {
+    return Math.log10(2 + field);
+  }
+
+  if (modifier === Modifier.LN) {
+    return Math.log(field);
+  }
+
+  if (modifier === Modifier.LNOneP) {
+    return Math.log1p(field);
+  }
+
+  if (modifier === Modifier.LNTwoP) {
+    return Math.log(2 + field);
+  }
+
+  if (modifier === Modifier.Square) {
+    return Math.pow(field, 2);
+  }
+
+  if (modifier === Modifier.Sqrt) {
+    return Math.sqrt(field);
+  }
+
+  if (modifier === Modifier.Reciprocal) {
+    return 1 / field;
+  }
+
+  return field;
 }

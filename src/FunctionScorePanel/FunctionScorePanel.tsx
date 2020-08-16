@@ -7,8 +7,8 @@ import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/edit/closebrackets';
 import { get } from 'lodash';
 import BoostMode from 'BoostMode';
-import { combineScores, boostScore } from './Scoring';
-import { FieldValueFactorDef, Modifier } from 'FieldValueFactor';
+import { combineScores, boostScore, modifyFieldValueScore } from './Scoring';
+import { FieldValueFactorDef } from 'FieldValueFactor';
 
 function randomInt(min: number, max: number) {
   min = Math.ceil(min);
@@ -139,47 +139,7 @@ function FunctionScorePanel(props: props) {
                   field *= config.factor;
                 }
 
-                if (config.modifier === Modifier.None) {
-                  return field;
-                }
-
-                if (config.modifier === Modifier.Log) {
-                  return Math.log10(field);
-                }
-
-                if (config.modifier === Modifier.LogOneP) {
-                  return Math.log10(1 + field);
-                }
-
-                if (config.modifier === Modifier.LogTwoP) {
-                  return Math.log10(2 + field);
-                }
-
-                if (config.modifier === Modifier.LN) {
-                  return Math.log(field);
-                }
-
-                if (config.modifier === Modifier.LNOneP) {
-                  return Math.log1p(field);
-                }
-
-                if (config.modifier === Modifier.LNTwoP) {
-                  return Math.log(2 + field);
-                }
-
-                if (config.modifier === Modifier.Square) {
-                  return Math.pow(field, 2);
-                }
-
-                if (config.modifier === Modifier.Sqrt) {
-                  return Math.sqrt(field);
-                }
-
-                if (config.modifier === Modifier.Reciprocal) {
-                  return 1 / field;
-                }
-
-                return field;
+                return modifyFieldValueScore(field, config.modifier);
               }
             },
           })
